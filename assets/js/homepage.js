@@ -9,6 +9,7 @@ var userFormEl = document.querySelector("#user-form");
 var nameInputEl = document.querySelector("#username");
 var repoContainerEl = document.querySelector("#repos-container");
 var repoSearchTerm = document.querySelector("#repo-search-term");
+var languageButtonsEl = document.querySelector("#language-buttons");
 
 var formSubmitHandler = function(event){
   event.preventDefault();
@@ -17,40 +18,89 @@ var formSubmitHandler = function(event){
 
   if(username){
     getUserRepos(username);
+
+    //clear old value from input element
+    repoContainerEl.textContent = "";
     nameInputEl.value = "";
   }else{
       alert("Please enter a Github username");
     }
-  console.log(event);
 };
-userFormEl.addEventListener("submit", formSubmitHandler);
 
+var buttonClickHandler = function(event){
+  var language = event.target.getAttribute("data-language");
 
+  if(language){
+    getFeaturedRepos(language);
+    //clear old content
+    repoContainerEl.textContent = "";
+  }
+};
+
+var getUserRepos = function(user){
+  //format the github api url
+  var apiUrl = "https://api.github.com/users/" + user + "/repos";
+
+  //make a request to thge url
+  fetch(apiUrl).then(function(response){
+    // if request is successful
+    if(response.ok){
+    response.json().then(function(data){
+      console.log(data);
+      displayRepos(data, user);
+    });
+  } else{
+    alert("Error:" + response.statusText);
+  }
+  })
+  .catch(function(error){
+    // Notice this .`.catch()` getting chained onto the end of the `.then()` method
+    alert("Unable to connect to Github");
+  });
+};
+
+var getFeaturedRepos = function(language){
+  //format the github api
+  var apiUrl = "https://api.github.com/search/repositories?q=" + language + "+is:featured&sort=help-wanted-issues";
+// make aget request to url
+  fetch(apiUrl).then(function(response){
+
+     if(response.ok){
+       response.json().then(function(data){
+       displayRepos(data.items, language);
+       });
+
+     } else{
+       alert("Error: Github User Not found");
+     }
+  });
+};
 var displayRepos = function(repos, searchTerm){
   //console.log(repos);
   //console.log(searchTerm);
   // check if api returned any repos
-  
-  repoContainerEl.textContent = "";
+  if(repos.length === 0){
+    repoContainerEl.textContent = "No repositories found";
+    return;
+  }
+
   repoSearchTerm.textContent = searchTerm;
   //loop over repos
   for(var i = 0; i < repos.length; i++){
-    if(repos.length === 0){
-      repoContainerEl.textContent = "No repositories found";
-      return;
-    }
     //format repo name
     var repoName = repos[i].owner.login + "/" + repos[i].name;
 
     //create a conatiner for each repo
     var repoEl = document.createElement("a");
     repoEl.classList = "list-item flex-row justify-space-between align-center";
-
+     // connect the 2nd page of file path to the repo list issues
+    repoEl.setAttribute("href", "./single-repo.html?repo=" + repoName);
     //create a span element to hold repository name
     var titleEl = document.createElement("span");
     titleEl.textContent = repoName;
-    // connect the 2nd page of file path to the repo list issues
-    repoEl.setAttribute("href", "./single-repo.html?repo=" + repoName);
+    
+    //appen conatiner
+    repoEl.appendChild(titleEl);
     //create status element
     var statusEl = document.createElement("span");
     statusEl.classList = "flex-row align-center";
@@ -63,9 +113,6 @@ var displayRepos = function(repos, searchTerm){
       statusEl.innerHTML = "<i class = 'fas fa-check-square status-icon icon-success'></i>";
     } 
     
-    //appen conatiner
-    repoEl.appendChild(titleEl);
-
     //append conatiner to the DOM
     repoContainerEl.appendChild(repoEl);
     //append child container
@@ -73,24 +120,6 @@ var displayRepos = function(repos, searchTerm){
   }
 };
 
-var getUserRepos = function(user){
-  //format the github api url
-  var apiUrl = "https://api.github.com/users/" + user + "/repos";
 
-  //make a request to thge url
-  fetch(apiUrl).then(function(response){
-    if(response.ok){
-    response.json().then(function(data){
-      displayRepos(data, user);
-    });
-  } else{
-    alert("Error: Github User Not Found");
-  }
-  })
-  .catch(function(error){
-    // Notice this .`.catch()` getting chained onto the end of the `.then()` method
-    alert("Unable to connect to Github");
-  });
-};
-getUserRepos();
-
+languageButtonsEl.addEventListener("click", buttonClickHandler);
+userFormEl.addEventListener("submit",formSubmitHandler);

@@ -1,8 +1,8 @@
 var issueContainerEl = document.querySelector
 ("#issues-container");
-var limitwarningEl = document.querySelector("#limit-warning");
+var limitWarningEl = document.querySelector("#limit-warning");
 var repoNameEl = document.querySelector("#repo-name");
-var queryString = document.location.search;
+
 
 var getRepoName = function(){
     //grab repo name from url query string
@@ -83,7 +83,8 @@ var displayWarning = function(repo){
     linkEl.setAttribute("target", "_blank");
 
     // appen to warning conatiner
-    limitwarningEl.appendChild(linkEl);
+    limitWarningEl.appendChild(linkEl);
     //add text to warning container
-    limitwarningEl.textContent = "To see more than 30 issues, visit";
+    limitWarningEl.textContent = "To see more than 30 issues, visit";
 };
+getRepoName();
