@@ -1,4 +1,23 @@
-var issueContainerEl = document.querySelector("#issues-container");
+var issueContainerEl = document.querySelector
+("#issues-container");
+var limitwarningEl = document.querySelector("#limit-warning");
+var repoNameEl = document.querySelector("#repo-name");
+var queryString = document.location.search;
+
+var getRepoName = function(){
+    //grab repo name from url query string
+    var queryString = document.location.search;
+    var repoName = queryString.split("=")[i];
+
+    getRepoIssues(repoName);
+    if(repoName){
+        //display repo name on the page
+        repoNameEl.textContent = repoName;
+        getRepoIssues(repoName);
+    } else{
+        document.location.search("./index.html");
+    }
+};
 
 var getRepoIssues = function(repo){
     console.log(repo);
@@ -10,14 +29,18 @@ var getRepoIssues = function(repo){
             response.json().then(function(data){
                 //pass response data to dom function
                 displayIssues(data);
+                if(response.headers.get("Link")){
+                displayWarning(repo);
+                }
             });
         } else{
-            alert("There was aproblem with your request");
+            //alert("There was a problem with your request");
+            document.location.replace("./index.html");
         }
     });
 };
 
-getRepoIssues("facebook/react");
+getRepoIssues("microsoft/activities");
 
 var displayIssues = function(issues){
     if(issues.length === 0){
@@ -52,4 +75,15 @@ var displayIssues = function(issues){
         issueContainerEl.appendChild(issueEl);
     }
     
+};
+var displayWarning = function(repo){
+    var linkEl = document.createElement("a");
+    linkEl.textContent = "See More Issues on Github.com";
+    linkEl.setAttribute("href", "https://github.com/" + repo + "/issues");
+    linkEl.setAttribute("target", "_blank");
+
+    // appen to warning conatiner
+    limitwarningEl.appendChild(linkEl);
+    //add text to warning container
+    limitwarningEl.textContent = "To see more than 30 issues, visit";
 };

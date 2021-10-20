@@ -43,12 +43,14 @@ var displayRepos = function(repos, searchTerm){
     var repoName = repos[i].owner.login + "/" + repos[i].name;
 
     //create a conatiner for each repo
-    var repoEl = document.createElement("div");
+    var repoEl = document.createElement("a");
     repoEl.classList = "list-item flex-row justify-space-between align-center";
 
     //create a span element to hold repository name
     var titleEl = document.createElement("span");
     titleEl.textContent = repoName;
+    // connect the 2nd page of file path to the repo list issues
+    repoEl.setAttribute("href", "./single-repo.html?repo=" + repoName);
     //create status element
     var statusEl = document.createElement("span");
     statusEl.classList = "flex-row align-center";
